@@ -49,6 +49,11 @@ class SpringApplicationRunListeners {
 		this.applicationStartup = applicationStartup;
 	}
 
+	/**
+	 * 通知监听器服务启动中
+	 * @param bootstrapContext
+	 * @param mainApplicationClass
+	 */
 	void starting(ConfigurableBootstrapContext bootstrapContext, Class<?> mainApplicationClass) {
 		doWithListeners("spring.boot.application.starting", (listener) -> listener.starting(bootstrapContext),
 				(step) -> {

@@ -139,18 +139,22 @@ class BeanDefinitionLoader {
 
 	private void load(Object source) {
 		Assert.notNull(source, "Source must not be null");
+		// 加载类并注册 bean
 		if (source instanceof Class<?>) {
 			load((Class<?>) source);
 			return;
 		}
+		// 加载 Groovy 或 xml 并注册 Bean
 		if (source instanceof Resource) {
 			load((Resource) source);
 			return;
 		}
+		// 加载 Package 并注册 Bean
 		if (source instanceof Package) {
 			load((Package) source);
 			return;
 		}
+		// 根据字符加载，尝试加载类、资源或者 package
 		if (source instanceof CharSequence) {
 			load((CharSequence) source);
 			return;
@@ -164,11 +168,16 @@ class BeanDefinitionLoader {
 			GroovyBeanDefinitionSource loader = BeanUtils.instantiateClass(source, GroovyBeanDefinitionSource.class);
 			((GroovyBeanDefinitionReader) this.groovyReader).beans(loader.getBeans());
 		}
+		// 检查是否有资格注册，如果有则注册
 		if (isEligible(source)) {
 			this.annotatedReader.register(source);
 		}
 	}
 
+	/**
+	 * 加载 Groovy 或 xml 定义的 Bean 资源
+	 * @param source
+	 */
 	private void load(Resource source) {
 		if (source.getFilename().endsWith(".groovy")) {
 			if (this.groovyReader == null) {
@@ -184,6 +193,10 @@ class BeanDefinitionLoader {
 		}
 	}
 
+	/**
+	 * 扫描 Package 并注册 bean
+	 * @param source
+	 */
 	private void load(Package source) {
 		this.scanner.scan(source.getName());
 	}
@@ -192,6 +205,7 @@ class BeanDefinitionLoader {
 		String resolvedSource = this.scanner.getEnvironment().resolvePlaceholders(source.toString());
 		// Attempt as a Class
 		try {
+			// 加载类
 			load(ClassUtils.forName(resolvedSource, null));
 			return;
 		}
@@ -199,10 +213,12 @@ class BeanDefinitionLoader {
 			// swallow exception and continue
 		}
 		// Attempt as Resources
+		// 加载资源
 		if (loadAsResources(resolvedSource)) {
 			return;
 		}
 		// Attempt as package
+		// 加载包名
 		Package packageResource = findPackage(resolvedSource);
 		if (packageResource != null) {
 			load(packageResource);
@@ -287,11 +303,15 @@ class BeanDefinitionLoader {
 
 	/**
 	 * Check whether the bean is eligible for registration.
+	 * 检查 bean 是否有资格注册
+	 *
 	 * @param type candidate bean type
 	 * @return true if the given bean type is eligible for registration, i.e. not a groovy
 	 * closure nor an anonymous class
+	 * 如果 bean 有资格注册，
 	 */
 	private boolean isEligible(Class<?> type) {
+		// 非匿名类且非 GroovyClosure 且有构造器
 		return !(type.isAnonymousClass() || isGroovyClosure(type) || hasNoConstructors(type));
 	}
 

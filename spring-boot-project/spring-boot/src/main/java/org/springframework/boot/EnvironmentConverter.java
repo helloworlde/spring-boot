@@ -64,6 +64,8 @@ final class EnvironmentConverter {
 	 * Converts the given {@code environment} to the given {@link StandardEnvironment}
 	 * type. If the environment is already of the same type, no conversion is performed
 	 * and it is returned unchanged.
+	 * 将给定的  Environment 转为 StandardEnvironment，如果已经是相同的类型，则不做操作
+	 *
 	 * @param environment the Environment to convert
 	 * @param type the type to convert the Environment to
 	 * @return the converted Environment
@@ -80,7 +82,9 @@ final class EnvironmentConverter {
 			Class<? extends StandardEnvironment> type) {
 		StandardEnvironment result = createEnvironment(type);
 		result.setActiveProfiles(environment.getActiveProfiles());
+		//
 		result.setConversionService(environment.getConversionService());
+		// 复制属性
 		copyPropertySources(environment, result);
 		return result;
 	}

@@ -75,6 +75,7 @@ public class DefaultPropertiesPropertySource extends MapPropertySource {
 
 	/**
 	 * Add a new {@link DefaultPropertiesPropertySource} or merge with an existing one.
+	 * 添加或合并 DefaultPropertiesPropertySource 到已经存在的配置中
 	 * @param source the {@code Map} source
 	 * @param sources the existing sources
 	 * @since 2.4.4

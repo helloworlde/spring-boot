@@ -142,6 +142,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 	@Override
 	public final void refresh() throws BeansException, IllegalStateException {
 		try {
+			// 初始并启动 Tomcat
 			super.refresh();
 		}
 		catch (RuntimeException ex) {
