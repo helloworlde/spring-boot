@@ -86,17 +86,22 @@ class JavaBeanBinder implements DataObjectBinder {
 		return bound;
 	}
 
+	/**
+	 * 绑定配置到对象的属性
+	 */
 	private <T> boolean bind(BeanSupplier<T> beanSupplier, DataObjectPropertyBinder propertyBinder,
 			BeanProperty property) {
 		String propertyName = property.getName();
 		ResolvableType type = property.getType();
 		Supplier<Object> value = property.getValue(beanSupplier);
 		Annotation[] annotations = property.getAnnotations();
+		// 获取绑定的配置
 		Object bound = propertyBinder.bindProperty(propertyName,
 				Bindable.of(type).withSuppliedValue(value).withAnnotations(annotations));
 		if (bound == null) {
 			return false;
 		}
+		// 赋值给对象的属性，通过反射的方式给属性赋值
 		if (property.isSettable()) {
 			property.setValue(beanSupplier, bound);
 		}

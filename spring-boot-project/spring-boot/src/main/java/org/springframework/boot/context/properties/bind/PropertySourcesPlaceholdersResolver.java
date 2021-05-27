@@ -26,6 +26,7 @@ import org.springframework.util.SystemPropertyUtils;
 
 /**
  * {@link PlaceholdersResolver} to resolve placeholders from {@link PropertySources}.
+ * 用于从 PropertySources 解决占位符的 PlaceholdersResolver
  *
  * @author Phillip Webb
  * @author Madhura Bhave

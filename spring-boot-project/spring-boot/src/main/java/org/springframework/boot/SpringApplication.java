@@ -419,10 +419,11 @@ public class SpringApplication {
 		ConfigurationPropertySources.attach(environment);
 		// 通知监听器 Environment 准备就绪
 		listeners.environmentPrepared(bootstrapContext, environment);
+		// 将 defaultProperties 移动到最后
 		DefaultPropertiesPropertySource.moveToEnd(environment);
 		Assert.state(!environment.containsProperty("spring.main.environment-prefix"),
 				"Environment prefix cannot be set via properties.");
-		// 将 Environment 绑定到应用
+		// 将 spring.main 配置绑定到 SpringApplication 的属性上
 		bindToSpringApplication(environment);
 		if (!this.isCustomEnvironment) {
 			// 将 Environment 转为 StandardEnvironment
@@ -647,7 +648,7 @@ public class SpringApplication {
 
 	/**
 	 * Bind the environment to the {@link SpringApplication}.
-	 * 将 Environment 绑定到 SpringApplication
+	 * 将 spring.main 配置绑定到 SpringApplication 的属性上
 	 * @param environment the environment to bind
 	 */
 	protected void bindToSpringApplication(ConfigurableEnvironment environment) {

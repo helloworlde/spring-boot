@@ -107,6 +107,8 @@ public final class ConfigurationPropertySources {
 	/**
 	 * Return a set of {@link ConfigurationPropertySource} instances that have previously
 	 * been {@link #attach(Environment) attached} to the {@link Environment}.
+	 * 返回之前附加到 Environment 的 ConfigurationPropertySource
+	 *
 	 * @param environment the source environment (must be an instance of
 	 * {@link ConfigurableEnvironment})
 	 * @return an iterable set of configuration property sources
@@ -116,6 +118,7 @@ public final class ConfigurationPropertySources {
 	public static Iterable<ConfigurationPropertySource> get(Environment environment) {
 		Assert.isInstanceOf(ConfigurableEnvironment.class, environment);
 		MutablePropertySources sources = ((ConfigurableEnvironment) environment).getPropertySources();
+		// 获取 configurationProperties
 		ConfigurationPropertySourcesPropertySource attached = (ConfigurationPropertySourcesPropertySource) sources
 				.get(ATTACHED_PROPERTY_SOURCE_NAME);
 		if (attached == null) {
