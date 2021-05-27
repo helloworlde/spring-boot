@@ -41,6 +41,9 @@ import org.springframework.util.ClassUtils;
  * compliant classes using {@code javax.inject} annotations. Allows for registering
  * classes one by one (specifying class names as config location) as well as for classpath
  * scanning (specifying base packages as config location).
+ *
+ * ServletWebServerApplicationContext 允许将注解类作为源，，如 @Configuration 和 @Component 类，
+ * 以及使用 inject 注解的类，允许通过类路径扫描逐个注册
  * <p>
  * Note: In case of multiple {@code @Configuration} classes, later {@code @Bean}
  * definitions will override ones defined in earlier loaded files. This can be leveraged

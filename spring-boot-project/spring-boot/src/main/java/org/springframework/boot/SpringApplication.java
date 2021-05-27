@@ -358,9 +358,9 @@ public class SpringApplication {
 			Banner printedBanner = printBanner(environment);
 			// 创建应用上下文
 			context = createApplicationContext();
-			// 设置 applicationStartup
+			// 设置 applicationStartup，用于记录应用启动步骤
 			context.setApplicationStartup(this.applicationStartup);
-			// 准备上下文
+			// 准备上下文，会执行所有的 ApplicationContextInitializer，注册启动时用到的 Bean，将启动类作为 Bean 注册
 			prepareContext(bootstrapContext, context, environment, listeners, applicationArguments, printedBanner);
 			// 刷新 context
 			refreshContext(context);
@@ -446,6 +446,9 @@ public class SpringApplication {
 		}
 	}
 
+	/**
+	 * 准备上下文，会执行所有的 ApplicationContextInitializer，注册启动时用到的 Bean，将启动类作为 Bean 注册
+	 */
 	private void prepareContext(DefaultBootstrapContext bootstrapContext, ConfigurableApplicationContext context,
 			ConfigurableEnvironment environment, SpringApplicationRunListeners listeners,
 			ApplicationArguments applicationArguments, Banner printedBanner) {
