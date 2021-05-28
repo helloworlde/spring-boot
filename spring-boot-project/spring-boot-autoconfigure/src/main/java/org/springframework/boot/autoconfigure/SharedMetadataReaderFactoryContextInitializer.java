@@ -92,9 +92,17 @@ class SharedMetadataReaderFactoryContextInitializer
 		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 		}
 
+		/**
+		 * 在 ApplicationContext 标准初始化之后修改内部的 bean 定义，所有常规的 bean 定义会被加载
+		 * 但是还没有 bean 初始化，允许在下一个 post-processing 开始之前添加 bean
+		 * @param registry
+		 * @throws BeansException
+		 */
 		@Override
 		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
+			// 注册 SharedMetadataReaderFactoryBean 的 bean
 			register(registry);
+			// 配置 internalCachingMetadataReaderFactory post-processor
 			configureConfigurationClassPostProcessor(registry);
 		}
 

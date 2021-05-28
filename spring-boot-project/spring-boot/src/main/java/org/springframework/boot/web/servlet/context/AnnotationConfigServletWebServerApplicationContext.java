@@ -198,12 +198,19 @@ public class AnnotationConfigServletWebServerApplicationContext extends ServletW
 		super.prepareRefresh();
 	}
 
+	/**
+	 * 并注册 web 特定的 scope 和 bean，扫描特定的包和注解类
+	 * @param beanFactory
+	 */
 	@Override
 	protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+		// 注册 ServletContextAwareProcessor，并注册 web 特定的 scope 和 bean
 		super.postProcessBeanFactory(beanFactory);
+		// 扫描指定的包
 		if (this.basePackages != null && this.basePackages.length > 0) {
 			this.scanner.scan(this.basePackages);
 		}
+		// 注册注解类
 		if (!this.annotatedClasses.isEmpty()) {
 			this.reader.register(ClassUtils.toClassArray(this.annotatedClasses));
 		}
