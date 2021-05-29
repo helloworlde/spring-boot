@@ -29,6 +29,9 @@ import org.springframework.web.context.support.ServletContextAwareProcessor;
  * can occur before the {@link ServletContext} or {@link ServletConfig} have been
  * initialized.
  *
+ * 使用 ConfigurableWebApplicationContext  的 ServletContextAwareProcessor 变体
+ * 在 ServletContext 或 ServletConfig 初始化之前注册 Processor
+ *
  * @author Phillip Webb
  * @since 1.0.0
  */

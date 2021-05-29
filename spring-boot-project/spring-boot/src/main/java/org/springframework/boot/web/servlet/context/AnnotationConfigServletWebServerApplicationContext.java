@@ -41,6 +41,9 @@ import org.springframework.util.ClassUtils;
  * compliant classes using {@code javax.inject} annotations. Allows for registering
  * classes one by one (specifying class names as config location) as well as for classpath
  * scanning (specifying base packages as config location).
+ *
+ * ServletWebServerApplicationContext 允许将注解类作为源，，如 @Configuration 和 @Component 类，
+ * 以及使用 inject 注解的类，允许通过类路径扫描逐个注册
  * <p>
  * Note: In case of multiple {@code @Configuration} classes, later {@code @Bean}
  * definitions will override ones defined in earlier loaded files. This can be leveraged
@@ -195,12 +198,19 @@ public class AnnotationConfigServletWebServerApplicationContext extends ServletW
 		super.prepareRefresh();
 	}
 
+	/**
+	 * 并注册 web 特定的 scope 和 bean，扫描特定的包和注解类
+	 * @param beanFactory
+	 */
 	@Override
 	protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+		// 注册 ServletContextAwareProcessor，并注册 web 特定的 scope 和 bean
 		super.postProcessBeanFactory(beanFactory);
+		// 扫描指定的包
 		if (this.basePackages != null && this.basePackages.length > 0) {
 			this.scanner.scan(this.basePackages);
 		}
+		// 注册注解类
 		if (!this.annotatedClasses.isEmpty()) {
 			this.reader.register(ClassUtils.toClassArray(this.annotatedClasses));
 		}

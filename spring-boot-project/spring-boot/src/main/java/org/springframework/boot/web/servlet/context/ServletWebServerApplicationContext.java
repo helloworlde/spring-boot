@@ -130,12 +130,15 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 
 	/**
 	 * Register ServletContextAwareProcessor.
+	 * 注册 ServletContextAwareProcessor，并注册 web 特定的 scope 和 bean
 	 * @see ServletContextAwareProcessor
 	 */
 	@Override
 	protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+		// 添加 WebApplicationContextServletContextAwareProcessor
 		beanFactory.addBeanPostProcessor(new WebApplicationContextServletContextAwareProcessor(this));
 		beanFactory.ignoreDependencyInterface(ServletContextAware.class);
+		// 向指定的 BeanFactory 注册 web 特定的 scope ("request", "session", "globalSession", "application")
 		registerWebApplicationScopes();
 	}
 
@@ -244,8 +247,13 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 		servletContext.setAttribute(ServletContextScope.class.getName(), appScope);
 	}
 
+	/**
+	 * 注册 request 和 session scope
+	 */
 	private void registerWebApplicationScopes() {
 		ExistingWebApplicationScopes existingScopes = new ExistingWebApplicationScopes(getBeanFactory());
+		// 向指定的 BeanFactory 注册 web 特定的 scope ("request", "session", "globalSession", "application")
+		// 并注册指定的 Bean
 		WebApplicationContextUtils.registerWebApplicationScopes(getBeanFactory());
 		existingScopes.restore();
 	}

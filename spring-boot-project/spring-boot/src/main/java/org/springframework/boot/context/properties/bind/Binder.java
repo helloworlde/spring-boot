@@ -46,6 +46,7 @@ import org.springframework.util.Assert;
 /**
  * A container object which Binds objects from one or more
  * {@link ConfigurationPropertySource ConfigurationPropertySources}.
+ * 从一个或多个 ConfigurationPropertySource 绑定对象的容器
  *
  * @author Phillip Webb
  * @author Madhura Bhave
@@ -159,12 +160,15 @@ public class Binder {
 			BindHandler defaultBindHandler, BindConstructorProvider constructorProvider) {
 		this(sources, placeholdersResolver,
 				(conversionService != null) ? Collections.singletonList(conversionService)
-						: (List<ConversionService>) null,
+						: null,
 				propertyEditorInitializer, defaultBindHandler, constructorProvider);
 	}
 
 	/**
 	 * Create a new {@link Binder} instance for the specified sources.
+	 *
+	 * 使用指定的 sources 创建 binder
+	 *
 	 * @param sources the sources used for binding
 	 * @param placeholdersResolver strategy to resolve any property placeholders
 	 * @param conversionServices the conversion services to convert values (or
@@ -329,6 +333,9 @@ public class Binder {
 		return bind(name, target, handler, context, false, create);
 	}
 
+	/**
+	 * 将配置绑定到对象上
+	 */
 	private <T> T bind(ConfigurationPropertyName name, Bindable<T> target, BindHandler handler, Context context,
 			boolean allowRecursiveBinding, boolean create) {
 		try {
@@ -337,7 +344,9 @@ public class Binder {
 				return handleBindResult(name, target, handler, context, null, create);
 			}
 			target = replacementTarget;
+			// 解析绑定的属性
 			Object bound = bindObject(name, target, handler, context, allowRecursiveBinding);
+			// 处理绑定的属性
 			return handleBindResult(name, target, handler, context, bound, create);
 		}
 		catch (Exception ex) {
@@ -345,6 +354,9 @@ public class Binder {
 		}
 	}
 
+	/**
+	 * 处理绑定的属性
+	 */
 	private <T> T handleBindResult(ConfigurationPropertyName name, Bindable<T> target, BindHandler handler,
 			Context context, Object result, boolean create) throws Exception {
 		if (result != null) {
@@ -387,16 +399,19 @@ public class Binder {
 
 	private <T> Object bindObject(ConfigurationPropertyName name, Bindable<T> target, BindHandler handler,
 			Context context, boolean allowRecursiveBinding) {
+		// 使用 name 从所有的配置源中查找属性
 		ConfigurationProperty property = findProperty(name, target, context);
 		if (property == null && context.depth != 0 && containsNoDescendantOf(context.getSources(), name)) {
 			return null;
 		}
+		// 从聚合的对象中查找 (Map/Collection/Array)
 		AggregateBinder<?> aggregateBinder = getAggregateBinder(target, context);
 		if (aggregateBinder != null) {
 			return bindAggregate(name, target, handler, context, aggregateBinder);
 		}
 		if (property != null) {
 			try {
+				// 将配置绑定到对象的属性上
 				return bindProperty(target, context, property);
 			}
 			catch (ConverterNotFoundException ex) {
@@ -408,6 +423,7 @@ public class Binder {
 				throw ex;
 			}
 		}
+		//
 		return bindDataObject(name, target, handler, context, allowRecursiveBinding);
 	}
 
@@ -449,6 +465,10 @@ public class Binder {
 		return null;
 	}
 
+	/**
+	 * 将配置绑定到对象的属性上
+	 * 会先解决占位符，然后进行转换
+	 */
 	private <T> Object bindProperty(Bindable<T> target, Context context, ConfigurationProperty property) {
 		context.setConfigurationProperty(property);
 		Object result = property.getValue();
@@ -457,6 +477,9 @@ public class Binder {
 		return result;
 	}
 
+	/**
+	 * 绑定属性到对象
+	 */
 	private Object bindDataObject(ConfigurationPropertyName name, Bindable<?> target, BindHandler handler,
 			Context context, boolean allowRecursiveBinding) {
 		if (isUnbindableBean(name, target, context)) {
@@ -505,6 +528,8 @@ public class Binder {
 
 	/**
 	 * Create a new {@link Binder} instance from the specified environment.
+	 * 使用特定的 Environment 创建新的 Binder 实例
+	 *
 	 * @param environment the environment source (must have attached
 	 * {@link ConfigurationPropertySources})
 	 * @return a {@link Binder} instance
@@ -523,8 +548,11 @@ public class Binder {
 	 * @since 2.2.0
 	 */
 	public static Binder get(Environment environment, BindHandler defaultBindHandler) {
+		// 返回之前附加到 Environment 的 ConfigurationPropertySource
 		Iterable<ConfigurationPropertySource> sources = ConfigurationPropertySources.get(environment);
+		// 用于从 PropertySources 解决占位符的 PlaceholdersResolver
 		PropertySourcesPlaceholdersResolver placeholdersResolver = new PropertySourcesPlaceholdersResolver(environment);
+		// 创建新的 Binder
 		return new Binder(sources, placeholdersResolver, null, null, defaultBindHandler);
 	}
 
