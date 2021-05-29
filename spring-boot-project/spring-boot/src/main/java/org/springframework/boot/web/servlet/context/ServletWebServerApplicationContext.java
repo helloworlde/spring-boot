@@ -176,15 +176,21 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 		super.doClose();
 	}
 
+	/**
+	 * 创建 WebServer
+	 */
 	private void createWebServer() {
 		WebServer webServer = this.webServer;
 		ServletContext servletContext = getServletContext();
 		if (webServer == null && servletContext == null) {
 			StartupStep createWebServer = this.getApplicationStartup().start("spring.boot.webserver.create");
+			// 获取 ServletWebServerFactory(Tomcat/Jetty/Undertow)
 			ServletWebServerFactory factory = getWebServerFactory();
 			createWebServer.tag("factory", factory.getClass().toString());
+			// 初始化 Tomcat 并启动
 			this.webServer = factory.getWebServer(getSelfInitializer());
 			createWebServer.end();
+			// 注册 Shutdown 和 LifeCycle Bean
 			getBeanFactory().registerSingleton("webServerGracefulShutdown",
 					new WebServerGracefulShutdownLifecycle(this.webServer));
 			getBeanFactory().registerSingleton("webServerStartStop",
@@ -198,6 +204,7 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 				throw new ApplicationContextException("Cannot initialize servlet context", ex);
 			}
 		}
+		// 初始化 servletContextInitParams 和 servletConfigInitParams 配置
 		initPropertySources();
 	}
 
@@ -231,6 +238,11 @@ public class ServletWebServerApplicationContext extends GenericWebApplicationCon
 		return this::selfInitialize;
 	}
 
+	/**
+	 * 初始化 Context
+	 * @param servletContext
+	 * @throws ServletException
+	 */
 	private void selfInitialize(ServletContext servletContext) throws ServletException {
 		prepareWebApplicationContext(servletContext);
 		registerApplicationScope(servletContext);

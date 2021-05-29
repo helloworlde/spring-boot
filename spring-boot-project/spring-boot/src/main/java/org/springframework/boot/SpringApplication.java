@@ -363,6 +363,8 @@ public class SpringApplication {
 			// 准备上下文，会执行所有的 ApplicationContextInitializer，注册启动时用到的 Bean，将启动类作为 Bean 注册
 			prepareContext(bootstrapContext, context, environment, listeners, applicationArguments, printedBanner);
 			// 刷新 context
+			// 初始化了 BeanFactory，执行了所有 BeanFactoryPostProcessor
+			// 初始化 MessageSource, 发送初始化广播，创建 Tomcat 容器并初始化所有非懒加载的 Bean
 			refreshContext(context);
 			// Context Refresh 完成
 			afterRefresh(context, applicationArguments);
