@@ -584,6 +584,9 @@ public class SpringApplication {
 	 * {@link #configureProfiles(ConfigurableEnvironment, String[])} in that order.
 	 * Override this method for complete control over Environment customization, or one of
 	 * the above for fine-grained control over property sources or profiles, respectively.
+	 * 顺序代理 configurePropertySources 和 configureProfiles 的模板方法
+	 * 重写这个方法可以实现对初始化环境的完全自定义，或者重写其中一个实现细粒度的控制
+	 *
 	 * @param environment this application's environment
 	 * @param args arguments passed to the {@code run} method
 	 * @see #configureProfiles(ConfigurableEnvironment, String[])
@@ -591,6 +594,7 @@ public class SpringApplication {
 	 */
 	protected void configureEnvironment(ConfigurableEnvironment environment, String[] args) {
 		if (this.addConversionService) {
+			// 配置转换器和格式化器
 			environment.setConversionService(new ApplicationConversionService());
 		}
 		// 配置 properties，命令行和 main 方法传递的
