@@ -423,7 +423,7 @@ public class Binder {
 				throw ex;
 			}
 		}
-		//
+		// 绑定属性到对象
 		return bindDataObject(name, target, handler, context, allowRecursiveBinding);
 	}
 
@@ -491,6 +491,7 @@ public class Binder {
 		}
 		DataObjectPropertyBinder propertyBinder = (propertyName, propertyTarget) -> bind(name.append(propertyName),
 				propertyTarget, handler, context, false, false);
+		// 将配置绑定到属性
 		return context.withDataObject(type, () -> {
 			for (DataObjectBinder dataObjectBinder : this.dataObjectBinders) {
 				Object instance = dataObjectBinder.bind(name, target, context, propertyBinder);

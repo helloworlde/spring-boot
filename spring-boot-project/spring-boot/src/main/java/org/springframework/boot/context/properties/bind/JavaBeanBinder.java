@@ -16,6 +16,14 @@
 
 package org.springframework.boot.context.properties.bind;
 
+import org.springframework.beans.BeanUtils;
+import org.springframework.boot.context.properties.bind.Binder.Context;
+import org.springframework.boot.context.properties.source.ConfigurationPropertyName;
+import org.springframework.boot.context.properties.source.ConfigurationPropertySource;
+import org.springframework.boot.context.properties.source.ConfigurationPropertyState;
+import org.springframework.core.MethodParameter;
+import org.springframework.core.ResolvableType;
+
 import java.beans.Introspector;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -29,16 +37,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.springframework.beans.BeanUtils;
-import org.springframework.boot.context.properties.bind.Binder.Context;
-import org.springframework.boot.context.properties.source.ConfigurationPropertyName;
-import org.springframework.boot.context.properties.source.ConfigurationPropertySource;
-import org.springframework.boot.context.properties.source.ConfigurationPropertyState;
-import org.springframework.core.MethodParameter;
-import org.springframework.core.ResolvableType;
-
 /**
  * {@link DataObjectBinder} for mutable Java Beans.
+ * 可变 Java Bean 的 DataObjectBinder
  *
  * @author Phillip Webb
  * @author Madhura Bhave
@@ -47,6 +48,20 @@ class JavaBeanBinder implements DataObjectBinder {
 
 	static final JavaBeanBinder INSTANCE = new JavaBeanBinder();
 
+	/**
+	 * 绑定属性
+	 *
+	 * @param name           the name being bound
+	 *                       绑定的属性前缀
+	 * @param target         the bindable to bind
+	 *                       要绑定的对象
+	 * @param context        the bind context
+	 *                       上下文
+	 * @param propertyBinder property binder
+	 *                       绑定属性
+	 * @param <T>
+	 * @return
+	 */
 	@Override
 	public <T> T bind(ConfigurationPropertyName name, Bindable<T> target, Context context,
 			DataObjectPropertyBinder propertyBinder) {
@@ -56,6 +71,7 @@ class JavaBeanBinder implements DataObjectBinder {
 			return null;
 		}
 		BeanSupplier<T> beanSupplier = bean.getSupplier(target);
+		// 绑定
 		boolean bound = bind(propertyBinder, bean, beanSupplier, context);
 		return (bound ? beanSupplier.get() : null);
 	}
@@ -79,6 +95,7 @@ class JavaBeanBinder implements DataObjectBinder {
 	private <T> boolean bind(DataObjectPropertyBinder propertyBinder, Bean<T> bean, BeanSupplier<T> beanSupplier,
 			Context context) {
 		boolean bound = false;
+		// 遍历配置，绑定
 		for (BeanProperty beanProperty : bean.getProperties().values()) {
 			bound |= bind(beanSupplier, propertyBinder, beanProperty);
 			context.clearConfigurationProperty();
