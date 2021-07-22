@@ -16,19 +16,7 @@
 
 package org.springframework.boot.context.config;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
 import org.apache.commons.logging.Log;
-
 import org.springframework.boot.ConfigurableBootstrapContext;
 import org.springframework.boot.context.config.ConfigDataEnvironmentContributor.ImportPhase;
 import org.springframework.boot.context.config.ConfigDataEnvironmentContributor.Kind;
@@ -42,6 +30,17 @@ import org.springframework.boot.context.properties.source.ConfigurationPropertyS
 import org.springframework.boot.logging.DeferredLogFactory;
 import org.springframework.core.log.LogMessage;
 import org.springframework.util.ObjectUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * An immutable tree structure of {@link ConfigDataEnvironmentContributors} used to
@@ -83,46 +82,63 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
 	/**
 	 * Processes imports from all active contributors and return a new
 	 * {@link ConfigDataEnvironmentContributors} instance.
-	 * @param importer the importer used to import {@link ConfigData}
+	 * 处理所有有效的贡献者的导入，返回一个新的 ConfigDataEnvironmentContributors 实例
+	 *
+	 * @param importer          the importer used to import {@link ConfigData}
+	 *                          用于导入 ConfigData 的 importer
 	 * @param activationContext the current activation context or {@code null} if the
-	 * context has not get been created
+	 *                          context has not get been created
+	 *                          当前活跃的 context，如果上下文没有创建，则是 null
 	 * @return a {@link ConfigDataEnvironmentContributors} instance with all relevant
 	 * imports have been processed
+	 * 包含所有处理的相关导入的 ConfigDataEnvironmentContributors 实例
 	 */
 	ConfigDataEnvironmentContributors withProcessedImports(ConfigDataImporter importer,
 			ConfigDataActivationContext activationContext) {
+		// 导入的阶段
 		ImportPhase importPhase = ImportPhase.get(activationContext);
 		this.logger.trace(LogMessage.format("Processing imports for phase %s. %s", importPhase,
 				(activationContext != null) ? activationContext : "no activation context"));
 		ConfigDataEnvironmentContributors result = this;
 		int processed = 0;
+		// 遍历处理所有贡献者
 		while (true) {
+			// 获取下一个贡献者
 			ConfigDataEnvironmentContributor contributor = getNextToProcess(result, activationContext, importPhase);
 			if (contributor == null) {
 				this.logger.trace(LogMessage.format("Processed imports for of %d contributors", processed));
 				return result;
 			}
+			// 如果是未绑定的返回结果
 			if (contributor.getKind() == Kind.UNBOUND_IMPORT) {
+				// 配置来源
 				Iterable<ConfigurationPropertySource> sources = Collections
 						.singleton(contributor.getConfigurationPropertySource());
+				// 占位符处理器
 				PlaceholdersResolver placeholdersResolver = new ConfigDataEnvironmentContributorPlaceholdersResolver(
 						result, activationContext, true);
+				// 属性绑定器
 				Binder binder = new Binder(sources, placeholdersResolver, null, null, null);
+				// 使用绑定的 ConfigDataProperties 创建一个 ConfigDataEnvironmentContributor 实例
 				ConfigDataEnvironmentContributor bound = contributor.withBoundProperties(binder);
+				// 绑定的结果
 				result = new ConfigDataEnvironmentContributors(this.logger, this.bootstrapContext,
 						result.getRoot().withReplacement(contributor, bound));
 				continue;
 			}
+			// 资源解析上下文
 			ConfigDataLocationResolverContext locationResolverContext = new ContributorConfigDataLocationResolverContext(
 					result, contributor, activationContext);
 			ConfigDataLoaderContext loaderContext = new ContributorDataLoaderContext(this);
 			List<ConfigDataLocation> imports = contributor.getImports();
 			this.logger.trace(LogMessage.format("Processing imports %s", imports));
+			// 加载并解析配置文件
 			Map<ConfigDataResolutionResult, ConfigData> imported = importer.resolveAndLoad(activationContext,
 					locationResolverContext, loaderContext, imports);
 			this.logger.trace(LogMessage.of(() -> getImportedMessage(imported.keySet())));
 			ConfigDataEnvironmentContributor contributorAndChildren = contributor.withChildren(importPhase,
 					asContributors(imported));
+			// 绑定结果
 			result = new ConfigDataEnvironmentContributors(this.logger, this.bootstrapContext,
 					result.getRoot().withReplacement(contributor, contributorAndChildren));
 			processed++;
@@ -143,9 +159,13 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
 		return this.bootstrapContext;
 	}
 
+	/**
+	 * 获取下一个要处理的贡献者
+	 */
 	private ConfigDataEnvironmentContributor getNextToProcess(ConfigDataEnvironmentContributors contributors,
 			ConfigDataActivationContext activationContext, ImportPhase importPhase) {
 		for (ConfigDataEnvironmentContributor contributor : contributors.getRoot()) {
+			// 未绑定或者是未处理的
 			if (contributor.getKind() == Kind.UNBOUND_IMPORT
 					|| isActiveWithUnprocessedImports(activationContext, importPhase, contributor)) {
 				return contributor;
@@ -329,7 +349,7 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
 		/**
 		 * Throw an exception if an inactive contributor contains a bound value.
 		 */
-		FAIL_ON_BIND_TO_INACTIVE_SOURCE;
+		FAIL_ON_BIND_TO_INACTIVE_SOURCE
 
 	}
 

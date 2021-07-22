@@ -16,6 +16,9 @@
 
 package org.springframework.boot.context.config;
 
+import org.apache.commons.logging.Log;
+import org.springframework.boot.logging.DeferredLogFactory;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,10 +27,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import org.apache.commons.logging.Log;
-
-import org.springframework.boot.logging.DeferredLogFactory;
 
 /**
  * Imports {@link ConfigData} by {@link ConfigDataLocationResolver resolving} and
@@ -71,18 +70,28 @@ class ConfigDataImporter {
 	/**
 	 * Resolve and load the given list of locations, filtering any that have been
 	 * previously loaded.
-	 * @param activationContext the activation context
+	 * 解析并加载给定的资源集合，过滤已经加载过的
+	 *
+	 * @param activationContext       the activation context
+	 *                                激活的上下文
 	 * @param locationResolverContext the location resolver context
-	 * @param loaderContext the loader context
-	 * @param locations the locations to resolve
+	 *                                资源加载上下文
+	 * @param loaderContext           the loader context
+	 *                                加载上下文
+	 * @param locations               the locations to resolve
+	 *                                文件位置
 	 * @return a map of the loaded locations and data
+	 * 加载的文件和数据的 map
 	 */
 	Map<ConfigDataResolutionResult, ConfigData> resolveAndLoad(ConfigDataActivationContext activationContext,
 			ConfigDataLocationResolverContext locationResolverContext, ConfigDataLoaderContext loaderContext,
 			List<ConfigDataLocation> locations) {
 		try {
+			// 获取 profile
 			Profiles profiles = (activationContext != null) ? activationContext.getProfiles() : null;
+			// 解析资源位置
 			List<ConfigDataResolutionResult> resolved = resolve(locationResolverContext, profiles, locations);
+			// 加载配置文件
 			return load(loaderContext, resolved);
 		}
 		catch (IOException ex) {

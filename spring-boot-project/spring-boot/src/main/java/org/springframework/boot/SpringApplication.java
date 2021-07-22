@@ -420,6 +420,8 @@ public class SpringApplication {
 		// 追加 configurationProperties
 		ConfigurationPropertySources.attach(environment);
 		// 通知监听器 Environment 准备就绪
+		// 最终会在 EnvironmentPostProcessorApplicationListener#onApplicationEvent
+		// 中通过 ConfigDataEnvironmentPostProcessor 加载 application.properties 或 application.yaml 相关的配置
 		listeners.environmentPrepared(bootstrapContext, environment);
 		// 将 defaultProperties 移动到最后
 		DefaultPropertiesPropertySource.moveToEnd(environment);

@@ -223,6 +223,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
 	/**
 	 * Create an new {@link ConfigDataEnvironmentContributor} with bound
 	 * {@link ConfigDataProperties}.
+	 * 使用绑定的 ConfigDataProperties 创建一个 ConfigDataEnvironmentContributor 实例
 	 * @param binder the binder to use
 	 * @return a new contributor instance
 	 */
@@ -460,7 +461,7 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
 		/**
 		 * A valid location that contained nothing to load.
 		 */
-		EMPTY_LOCATION;
+		EMPTY_LOCATION
 
 	}
 

@@ -222,11 +222,14 @@ class ConfigDataEnvironment {
 	/**
 	 * Process all contributions and apply any newly imported property sources to the
 	 * {@link Environment}.
+	 * 处理所有的贡献，将新导入的属性配置应用到 Environment 中
 	 */
 	void processAndApply() {
 		ConfigDataImporter importer = new ConfigDataImporter(this.logFactory, this.notFoundAction, this.resolvers,
 				this.loaders);
+		// 将 Binder 注册到 ConfigurableBootstrapContext 中
 		registerBootstrapBinder(this.contributors, null, DENY_INACTIVE_BINDING);
+		// 加载并初始化配置
 		ConfigDataEnvironmentContributors contributors = processInitial(this.contributors, importer);
 		ConfigDataActivationContext activationContext = createActivationContext(
 				contributors.getBinder(null, BinderOption.FAIL_ON_BIND_TO_INACTIVE_SOURCE));
@@ -240,6 +243,7 @@ class ConfigDataEnvironment {
 	private ConfigDataEnvironmentContributors processInitial(ConfigDataEnvironmentContributors contributors,
 			ConfigDataImporter importer) {
 		this.logger.trace("Processing initial config data environment contributors without activation context");
+		// 引入配置
 		contributors = contributors.withProcessedImports(importer, null);
 		registerBootstrapBinder(contributors, null, DENY_INACTIVE_BINDING);
 		return contributors;

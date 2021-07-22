@@ -80,6 +80,10 @@ public class EnvironmentPostProcessorApplicationListener implements SmartApplica
 				|| ApplicationFailedEvent.class.isAssignableFrom(eventType);
 	}
 
+	/**
+	 * 处理监听到的事件
+	 * @param event
+	 */
 	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof ApplicationEnvironmentPreparedEvent) {
@@ -96,6 +100,14 @@ public class EnvironmentPostProcessorApplicationListener implements SmartApplica
 	private void onApplicationEnvironmentPreparedEvent(ApplicationEnvironmentPreparedEvent event) {
 		ConfigurableEnvironment environment = event.getEnvironment();
 		SpringApplication application = event.getSpringApplication();
+		// 遍历所有的 EnvironmentPostProcessor，加载 properties 或 yaml 在 ConfigDataEnvironmentPostProcessor 中完成
+		// org.springframework.boot.env.RandomValuePropertySourceEnvironmentPostProcessor
+		// org.springframework.boot.env.SystemEnvironmentPropertySourceEnvironmentPostProcessor
+		// org.springframework.boot.env.SpringApplicationJsonEnvironmentPostProcessor
+		// org.springframework.boot.cloud.CloudFoundryVcapEnvironmentPostProcessor
+		// org.springframework.boot.context.config.ConfigDataEnvironmentPostProcessor
+		// org.springframework.boot.autoconfigure.integration.IntegrationPropertiesEnvironmentPostProcessor
+		// org.springframework.boot.reactor.DebugAgentEnvironmentPostProcessor
 		for (EnvironmentPostProcessor postProcessor : getEnvironmentPostProcessors(event.getBootstrapContext())) {
 			postProcessor.postProcessEnvironment(environment, application);
 		}
