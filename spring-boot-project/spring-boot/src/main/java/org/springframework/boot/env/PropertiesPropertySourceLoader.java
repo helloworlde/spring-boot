@@ -29,6 +29,7 @@ import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 /**
  * Strategy to load '.properties' files into a {@link PropertySource}.
+ * 将 .properties 文件加载到 PropertySource 的策略
  *
  * @author Dave Syer
  * @author Phillip Webb
@@ -46,11 +47,13 @@ public class PropertiesPropertySourceLoader implements PropertySourceLoader {
 
 	@Override
 	public List<PropertySource<?>> load(String name, Resource resource) throws IOException {
+		// 加载 properties 文件
 		List<Map<String, ?>> properties = loadProperties(resource);
 		if (properties.isEmpty()) {
 			return Collections.emptyList();
 		}
 		List<PropertySource<?>> propertySources = new ArrayList<>(properties.size());
+		// 添加到 propertySources 中
 		for (int i = 0; i < properties.size(); i++) {
 			String documentNumber = (properties.size() != 1) ? " (document #" + i + ")" : "";
 			propertySources.add(new OriginTrackedMapPropertySource(name + documentNumber,
@@ -61,13 +64,17 @@ public class PropertiesPropertySourceLoader implements PropertySourceLoader {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<Map<String, ?>> loadProperties(Resource resource) throws IOException {
+		// 文件名
 		String filename = resource.getFilename();
 		List<Map<String, ?>> result = new ArrayList<>();
+		// 如果是 xml 则使用  PropertiesLoaderUtils 加载
 		if (filename != null && filename.endsWith(XML_FILE_EXTENSION)) {
 			result.add((Map) PropertiesLoaderUtils.loadProperties(resource));
 		}
 		else {
+			// 使用  OriginTrackedPropertiesLoader 加载
 			List<Document> documents = new OriginTrackedPropertiesLoader(resource).load();
+			// 添加到 Map 中，返回结果
 			documents.forEach((document) -> result.add(document.asMap()));
 		}
 		return result;

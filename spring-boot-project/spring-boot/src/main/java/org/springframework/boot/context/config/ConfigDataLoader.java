@@ -16,14 +16,13 @@
 
 package org.springframework.boot.context.config;
 
-import java.io.IOException;
-
 import org.apache.commons.logging.Log;
-
 import org.springframework.boot.BootstrapContext;
 import org.springframework.boot.BootstrapRegistry;
 import org.springframework.boot.ConfigurableBootstrapContext;
 import org.springframework.boot.logging.DeferredLogFactory;
+
+import java.io.IOException;
 
 /**
  * Strategy class that can be used used to load {@link ConfigData} for a given
@@ -59,10 +58,15 @@ public interface ConfigDataLoader<R extends ConfigDataResource> {
 
 	/**
 	 * Load {@link ConfigData} for the given resource.
-	 * @param context the loader context
+	 * 使用指定的资源加载 ConfigData
+	 *
+	 * @param context  the loader context
+	 *                 加载上下文
 	 * @param resource the resource to load
+	 *                 资源
 	 * @return the loaded config data or {@code null} if the location should be skipped
-	 * @throws IOException on IO error
+	 * 加载的配置数据，如果应该跳过则返回 null
+	 * @throws IOException                         on IO error
 	 * @throws ConfigDataResourceNotFoundException if the resource cannot be found
 	 */
 	ConfigData load(ConfigDataLoaderContext context, R resource)

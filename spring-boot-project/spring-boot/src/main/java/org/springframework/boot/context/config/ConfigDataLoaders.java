@@ -16,13 +16,7 @@
 
 package org.springframework.boot.context.config;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
-
 import org.springframework.boot.BootstrapContext;
 import org.springframework.boot.BootstrapRegistry;
 import org.springframework.boot.ConfigurableBootstrapContext;
@@ -32,6 +26,11 @@ import org.springframework.core.ResolvableType;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.core.log.LogMessage;
 import org.springframework.util.Assert;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A collection of {@link ConfigDataLoader} instances loaded via {@code spring.factories}.
@@ -93,23 +92,36 @@ class ConfigDataLoaders {
 
 	/**
 	 * Load {@link ConfigData} using the first appropriate {@link ConfigDataLoader}.
-	 * @param <R> the resource type
-	 * @param context the loader context
+	 * 使用适当的 ConfigDataLoader 加载 ConfigData
+	 *
+	 * @param <R>      the resource type
+	 *                 资源类型
+	 * @param context  the loader context
+	 *                 加载上下文
 	 * @param resource the resource to load
+	 *                 要加载的资源
 	 * @return the loaded {@link ConfigData}
+	 * 加载的 ConfigData
 	 * @throws IOException on IO error
 	 */
 	<R extends ConfigDataResource> ConfigData load(ConfigDataLoaderContext context, R resource) throws IOException {
+		// 获取加载器
 		ConfigDataLoader<R> loader = getLoader(context, resource);
 		this.logger.trace(LogMessage.of(() -> "Loading " + resource + " using loader " + loader.getClass().getName()));
+		// 加载资源
 		return loader.load(context, resource);
 	}
 
+	/**
+	 * 根据资源获取加载器
+	 */
 	@SuppressWarnings("unchecked")
 	private <R extends ConfigDataResource> ConfigDataLoader<R> getLoader(ConfigDataLoaderContext context, R resource) {
 		ConfigDataLoader<R> result = null;
+		//  loaders: ConfigTreeConfigDataLoader,StandardConfigDataLoader
 		for (int i = 0; i < this.loaders.size(); i++) {
 			ConfigDataLoader<?> candidate = this.loaders.get(i);
+			// 如果 resourceType 是 resource 的实例，则检测是否可以加载，如果可以则使用这个 resourceType
 			if (this.resourceTypes.get(i).isInstance(resource)) {
 				ConfigDataLoader<R> loader = (ConfigDataLoader<R>) candidate;
 				if (loader.isLoadable(context, resource)) {

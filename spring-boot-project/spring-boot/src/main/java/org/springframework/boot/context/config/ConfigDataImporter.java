@@ -119,11 +119,19 @@ class ConfigDataImporter {
 		}
 	}
 
+	/**
+	 * 加载配置文件
+	 * @param loaderContext
+	 * @param candidates
+	 * @return
+	 * @throws IOException
+	 */
 	private Map<ConfigDataResolutionResult, ConfigData> load(ConfigDataLoaderContext loaderContext,
 			List<ConfigDataResolutionResult> candidates) throws IOException {
 		Map<ConfigDataResolutionResult, ConfigData> result = new LinkedHashMap<>();
 		for (int i = candidates.size() - 1; i >= 0; i--) {
 			ConfigDataResolutionResult candidate = candidates.get(i);
+			// 获取资源和位置
 			ConfigDataLocation location = candidate.getLocation();
 			ConfigDataResource resource = candidate.getResource();
 			if (resource.isOptional()) {
@@ -134,8 +142,10 @@ class ConfigDataImporter {
 			}
 			else {
 				try {
+					// 解析加载配置文件
 					ConfigData loaded = this.loaders.load(loaderContext, resource);
 					if (loaded != null) {
+						// 添加到已加载的集合中
 						this.loaded.add(resource);
 						this.loadedLocations.add(location);
 						result.put(candidate, loaded);

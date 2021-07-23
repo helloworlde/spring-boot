@@ -136,6 +136,7 @@ class ConfigDataEnvironmentContributors implements Iterable<ConfigDataEnvironmen
 			Map<ConfigDataResolutionResult, ConfigData> imported = importer.resolveAndLoad(activationContext,
 					locationResolverContext, loaderContext, imports);
 			this.logger.trace(LogMessage.of(() -> getImportedMessage(imported.keySet())));
+			// 使用给定 phase 的子集合，创建新的 ConfigDataEnvironmentContributor 实例
 			ConfigDataEnvironmentContributor contributorAndChildren = contributor.withChildren(importPhase,
 					asContributors(imported));
 			// 绑定结果

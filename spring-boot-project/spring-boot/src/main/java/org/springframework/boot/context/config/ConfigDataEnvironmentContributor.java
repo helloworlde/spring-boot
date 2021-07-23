@@ -16,6 +16,12 @@
 
 package org.springframework.boot.context.config;
 
+import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.boot.context.properties.source.ConfigurationPropertySource;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.PropertySource;
+import org.springframework.util.CollectionUtils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -25,12 +31,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-import org.springframework.boot.context.properties.bind.Binder;
-import org.springframework.boot.context.properties.source.ConfigurationPropertySource;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.PropertySource;
-import org.springframework.util.CollectionUtils;
 
 /**
  * A single element that may directly or indirectly contribute configuration data to the
@@ -241,8 +241,12 @@ class ConfigDataEnvironmentContributor implements Iterable<ConfigDataEnvironment
 	/**
 	 * Create a new {@link ConfigDataEnvironmentContributor} instance with a new set of
 	 * children for the given phase.
+	 * 使用给定 phase 的子集合，创建新的 ConfigDataEnvironmentContributor 实例
+	 *
 	 * @param importPhase the import phase
-	 * @param children the new children
+	 *                    导入的阶段
+	 * @param children    the new children
+	 *                    新的子集
 	 * @return a new contributor instance
 	 */
 	ConfigDataEnvironmentContributor withChildren(ImportPhase importPhase,

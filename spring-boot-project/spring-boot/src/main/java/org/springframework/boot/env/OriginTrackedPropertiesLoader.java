@@ -16,6 +16,13 @@
 
 package org.springframework.boot.env;
 
+import org.springframework.boot.origin.Origin;
+import org.springframework.boot.origin.OriginTrackedValue;
+import org.springframework.boot.origin.TextResourceOrigin;
+import org.springframework.boot.origin.TextResourceOrigin.Location;
+import org.springframework.core.io.Resource;
+import org.springframework.util.Assert;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,13 +33,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BooleanSupplier;
-
-import org.springframework.boot.origin.Origin;
-import org.springframework.boot.origin.OriginTrackedValue;
-import org.springframework.boot.origin.TextResourceOrigin;
-import org.springframework.boot.origin.TextResourceOrigin.Location;
-import org.springframework.core.io.Resource;
-import org.springframework.util.Assert;
 
 /**
  * Class to load {@code .properties} files into a map of {@code String} -&gt;
@@ -58,6 +58,8 @@ class OriginTrackedPropertiesLoader {
 
 	/**
 	 * Load {@code .properties} data and return a list of documents.
+	 * 加载 .properties 数据，返回文档的集合
+	 *
 	 * @return the loaded properties
 	 * @throws IOException on read error
 	 */
@@ -68,8 +70,12 @@ class OriginTrackedPropertiesLoader {
 	/**
 	 * Load {@code .properties} data and return a map of {@code String} ->
 	 * {@link OriginTrackedValue}.
+	 * 加载 .properties 数据，返回  Map<String,OriginTrackedValue>
+	 *
 	 * @param expandLists if list {@code name[]=a,b,c} shortcuts should be expanded
+	 *                    是否应该展开集合
 	 * @return the loaded properties
+	 * 加载的 properties
 	 * @throws IOException on read error
 	 */
 	List<Document> load(boolean expandLists) throws IOException {
@@ -77,8 +83,11 @@ class OriginTrackedPropertiesLoader {
 		Document document = new Document();
 		StringBuilder buffer = new StringBuilder();
 		try (CharacterReader reader = new CharacterReader(this.resource)) {
+			// 读取这个文件，加载 key,value 对，添加到 document 中
 			while (reader.read()) {
+				// 是否是 # 开头的注释
 				if (reader.isPoundCharacter()) {
+					// 如果是新的 document，不为空则加入，否则创建新的 document
 					if (isNewDocument(reader)) {
 						if (!document.isEmpty()) {
 							documents.add(document);
@@ -95,11 +104,13 @@ class OriginTrackedPropertiesLoader {
 				}
 				else {
 					reader.setLastLineComment(false);
+					// 加载 key 和 value
 					loadKeyAndValue(expandLists, document, reader, buffer);
 				}
 			}
 
 		}
+		// 将读取到的 document 添加到集合中，返回
 		if (!document.isEmpty() && !documents.contains(document)) {
 			documents.add(document);
 		}
@@ -108,7 +119,9 @@ class OriginTrackedPropertiesLoader {
 
 	private void loadKeyAndValue(boolean expandLists, Document document, CharacterReader reader, StringBuilder buffer)
 			throws IOException {
+		// 加载 key
 		String key = loadKey(buffer, reader).trim();
+		// 如果 key 是 [] 结尾且展开，则读取剩余内容
 		if (expandLists && key.endsWith("[]")) {
 			key = key.substring(0, key.length() - 2);
 			int index = 0;
@@ -122,7 +135,9 @@ class OriginTrackedPropertiesLoader {
 			while (!reader.isEndOfLine());
 		}
 		else {
+			// 加载 value
 			OriginTrackedValue value = loadValue(buffer, reader, false);
+			// 将 key/value 对添加到 document 中
 			document.put(key, value);
 		}
 	}
@@ -130,9 +145,12 @@ class OriginTrackedPropertiesLoader {
 	private String loadKey(StringBuilder buffer, CharacterReader reader) throws IOException {
 		buffer.setLength(0);
 		boolean previousWhitespace = false;
+		// 逐个字符读取 key
 		while (!reader.isEndOfLine()) {
+			// = 或者 : 的分隔符
 			if (reader.isPropertyDelimiter()) {
 				reader.read();
+				// 返回 key
 				return buffer.toString();
 			}
 			if (!reader.isWhiteSpace() && previousWhitespace) {
@@ -151,7 +169,9 @@ class OriginTrackedPropertiesLoader {
 		while (reader.isWhiteSpace() && !reader.isEndOfLine()) {
 			reader.read();
 		}
+		// 读取的位置
 		Location location = reader.getLocation();
+		// 逐个字符加载 value
 		while (!reader.isEndOfLine() && !(splitLists && reader.isListDelimiter())) {
 			buffer.append(reader.getCharacter());
 			reader.read();

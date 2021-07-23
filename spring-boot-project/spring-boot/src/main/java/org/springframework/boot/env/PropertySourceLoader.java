@@ -16,16 +16,17 @@
 
 package org.springframework.boot.env;
 
-import java.io.IOException;
-import java.util.List;
-
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 
+import java.io.IOException;
+import java.util.List;
+
 /**
  * Strategy interface located via {@link SpringFactoriesLoader} and used to load a
  * {@link PropertySource}.
+ * SpringFactoriesLoader 的策略接口，用于加载 PropertySource
  *
  * @author Dave Syer
  * @author Phillip Webb
@@ -35,6 +36,8 @@ public interface PropertySourceLoader {
 
 	/**
 	 * Returns the file extensions that the loader supports (excluding the '.').
+	 * 返回支持加载的文件扩展名
+	 *
 	 * @return the file extensions
 	 */
 	String[] getFileExtensions();
@@ -43,10 +46,15 @@ public interface PropertySourceLoader {
 	 * Load the resource into one or more property sources. Implementations may either
 	 * return a list containing a single source, or in the case of a multi-document format
 	 * such as yaml a source for each document in the resource.
-	 * @param name the root name of the property source. If multiple documents are loaded
-	 * an additional suffix should be added to the name for each source loaded.
+	 * 将资源加载到一个或多个 PropertySource，实现可能会返回包含一个或包含多个文档格式资源的 PropertySource
+	 *
+	 * @param name     the root name of the property source. If multiple documents are loaded
+	 *                 an additional suffix should be added to the name for each source loaded.
+	 *                 PropertySource 的根名称，如果加载多个文档，应该为每一个加载的 source 名称添加一个后缀
 	 * @param resource the resource to load
+	 *                 要加载的资源
 	 * @return a list property sources
+	 * 配置资源集合
 	 * @throws IOException if the source cannot be loaded
 	 */
 	List<PropertySource<?>> load(String name, Resource resource) throws IOException;

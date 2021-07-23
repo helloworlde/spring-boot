@@ -231,8 +231,10 @@ class ConfigDataEnvironment {
 		registerBootstrapBinder(this.contributors, null, DENY_INACTIVE_BINDING);
 		// 加载并初始化配置
 		ConfigDataEnvironmentContributors contributors = processInitial(this.contributors, importer);
+		// 创建活跃的上下文
 		ConfigDataActivationContext activationContext = createActivationContext(
 				contributors.getBinder(null, BinderOption.FAIL_ON_BIND_TO_INACTIVE_SOURCE));
+		//
 		contributors = processWithoutProfiles(contributors, importer, activationContext);
 		activationContext = withProfiles(contributors, activationContext);
 		contributors = processWithProfiles(contributors, importer, activationContext);
@@ -245,6 +247,7 @@ class ConfigDataEnvironment {
 		this.logger.trace("Processing initial config data environment contributors without activation context");
 		// 引入配置
 		contributors = contributors.withProcessedImports(importer, null);
+		// 将 Binder 注册到 bootstrapContext 中
 		registerBootstrapBinder(contributors, null, DENY_INACTIVE_BINDING);
 		return contributors;
 	}
