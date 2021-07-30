@@ -234,10 +234,13 @@ class ConfigDataEnvironment {
 		// 创建活跃的上下文
 		ConfigDataActivationContext activationContext = createActivationContext(
 				contributors.getBinder(null, BinderOption.FAIL_ON_BIND_TO_INACTIVE_SOURCE));
-		//
+		// 没有 profile 导入
 		contributors = processWithoutProfiles(contributors, importer, activationContext);
+		// 创建包含 profile 的 context
 		activationContext = withProfiles(contributors, activationContext);
+		// 指定 profile 导入
 		contributors = processWithProfiles(contributors, importer, activationContext);
+		// 将配置添加到环境中
 		applyToEnvironment(contributors, activationContext, importer.getLoadedLocations(),
 				importer.getOptionalLocations());
 	}
@@ -329,13 +332,24 @@ class ConfigDataEnvironment {
 				.from(() -> contributors.getBinder(activationContext, binderOptions)).withScope(Scope.PROTOTYPE));
 	}
 
+	/**
+	 * 将配置应用到环境中
+	 * @param contributors
+	 * @param activationContext
+	 * @param loadedLocations
+	 * @param optionalLocations
+	 */
 	private void applyToEnvironment(ConfigDataEnvironmentContributors contributors,
 			ConfigDataActivationContext activationContext, Set<ConfigDataLocation> loadedLocations,
 			Set<ConfigDataLocation> optionalLocations) {
+		// 检查配置是否有效
 		checkForInvalidProperties(contributors);
+		// 强制检查配置文件位置
 		checkMandatoryLocations(contributors, activationContext, loadedLocations, optionalLocations);
+		// 当前已存在的 PropertySources
 		MutablePropertySources propertySources = this.environment.getPropertySources();
 		this.logger.trace("Applying config data environment contributions");
+		// 遍历 contributor，将获取到的配置添加到最后
 		for (ConfigDataEnvironmentContributor contributor : contributors) {
 			PropertySource<?> propertySource = contributor.getPropertySource();
 			if (contributor.getKind() == ConfigDataEnvironmentContributor.Kind.BOUND_IMPORT && propertySource != null) {
@@ -346,7 +360,9 @@ class ConfigDataEnvironment {
 				else {
 					this.logger
 							.trace(LogMessage.format("Adding imported property source '%s'", propertySource.getName()));
+					// 将 propertySource 添加到最后
 					propertySources.addLast(propertySource);
+					// 通知事件
 					this.environmentUpdateListener.onPropertySourceAdded(propertySource, contributor.getLocation(),
 							contributor.getResource());
 				}
@@ -357,6 +373,7 @@ class ConfigDataEnvironment {
 		this.logger.trace(LogMessage.format("Setting default profiles: %s", profiles.getDefault()));
 		this.environment.setDefaultProfiles(StringUtils.toStringArray(profiles.getDefault()));
 		this.logger.trace(LogMessage.format("Setting active profiles: %s", profiles.getActive()));
+		// 设置活跃的 profile
 		this.environment.setActiveProfiles(StringUtils.toStringArray(profiles.getActive()));
 		this.environmentUpdateListener.onSetProfiles(profiles);
 	}

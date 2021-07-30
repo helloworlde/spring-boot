@@ -16,6 +16,20 @@
 
 package org.springframework.boot.context.config;
 
+import org.apache.commons.logging.Log;
+import org.springframework.boot.context.config.LocationResourceLoader.ResourceType;
+import org.springframework.boot.context.properties.bind.Binder;
+import org.springframework.boot.env.PropertySourceLoader;
+import org.springframework.core.Ordered;
+import org.springframework.core.env.Environment;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.support.SpringFactoriesLoader;
+import org.springframework.core.log.LogMessage;
+import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
+
 import java.io.File;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -30,23 +44,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.commons.logging.Log;
-
-import org.springframework.boot.context.config.LocationResourceLoader.ResourceType;
-import org.springframework.boot.context.properties.bind.Binder;
-import org.springframework.boot.env.PropertySourceLoader;
-import org.springframework.core.Ordered;
-import org.springframework.core.env.Environment;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.core.io.support.SpringFactoriesLoader;
-import org.springframework.core.log.LogMessage;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-
 /**
  * {@link ConfigDataLocationResolver} for standard locations.
+ * ConfigDataLocationResolver 的实现，获取配置文件位置
  *
  * @author Madhura Bhave
  * @author Phillip Webb
@@ -118,13 +118,23 @@ public class StandardConfigDataLocationResolver
 		return resolve(getReferences(context, location));
 	}
 
+	/**
+	 * 获取配置文件资源
+	 *
+	 * @param context
+	 * @param configDataLocation
+	 * @return
+	 */
 	private Set<StandardConfigDataReference> getReferences(ConfigDataLocationResolverContext context,
 			ConfigDataLocation configDataLocation) {
+		// 获取资源位置
 		String resourceLocation = getResourceLocation(context, configDataLocation);
 		try {
+			// 如果是文件夹则获取文件夹下的资源
 			if (isDirectory(resourceLocation)) {
 				return getReferencesForDirectory(configDataLocation, resourceLocation, NO_PROFILE);
 			}
+			// 是文件则获取文件资源
 			return getReferencesForFile(configDataLocation, resourceLocation, NO_PROFILE);
 		}
 		catch (RuntimeException ex) {
@@ -148,14 +158,23 @@ public class StandardConfigDataLocationResolver
 		return references;
 	}
 
+	/**
+	 * 获取资源文件地址
+	 *
+	 * @param context
+	 * @param configDataLocation
+	 * @return
+	 */
 	private String getResourceLocation(ConfigDataLocationResolverContext context,
 			ConfigDataLocation configDataLocation) {
 		String resourceLocation = configDataLocation.getNonPrefixedValue(PREFIX);
 		boolean isAbsolute = resourceLocation.startsWith("/") || URL_PREFIX.matcher(resourceLocation).matches();
+		// 绝对路径
 		if (isAbsolute) {
 			return resourceLocation;
 		}
 		ConfigDataResource parent = context.getParent();
+		// 获取资源文件夹
 		if (parent instanceof StandardConfigDataResource) {
 			String parentResourceLocation = ((StandardConfigDataResource) parent).getReference().getResourceLocation();
 			String parentDirectory = parentResourceLocation.substring(0, parentResourceLocation.lastIndexOf("/") + 1);
@@ -172,9 +191,24 @@ public class StandardConfigDataLocationResolver
 		return getReferencesForFile(configDataLocation, resourceLocation, profile);
 	}
 
+	/**
+	 * 获取引用的配置文件位置
+	 *
+	 * @param configDataLocation 位置信息，如 optional:file:./config/*\/ 或
+	 * @param directory          配置文件位置，如
+	 *                           file:./config/*\/
+	 *                           file:./config/
+	 *                           file:./
+	 *                           classpath:/config/
+	 *                           classpath:/
+	 *
+	 * @param profile            活跃的 profile
+	 * @return
+	 */
 	private Set<StandardConfigDataReference> getReferencesForDirectory(ConfigDataLocation configDataLocation,
 			String directory, String profile) {
 		Set<StandardConfigDataReference> references = new LinkedHashSet<>();
+		// 遍历支持的配置文件名称获取，默认是 application
 		for (String name : this.configNames) {
 			Deque<StandardConfigDataReference> referencesForName = getReferencesForConfigName(name, configDataLocation,
 					directory, profile);
@@ -183,10 +217,70 @@ public class StandardConfigDataLocationResolver
 		return references;
 	}
 
+	/**
+	 * 获取配置文件的路径
+	 *
+	 * @param name               名称，默认为 application
+	 * @param configDataLocation 位置信息，如 optional:file:./config/*\/ 或
+	 * @param directory          配置文件位置，如 file:./config/*\/
+	 * @param profile            活跃的 profile
+	 * @return 要查找的配置文件路径
+	 * file:./config/*\/application.yaml
+	 * file:./config/*\/application.yml
+	 * file:./config/*\/application.xml
+	 * <p>
+	 * file:./config/*\/application.properties
+	 * file:./config/application.yaml
+	 * file:./config/application.yml
+	 * file:./config/application.xml
+	 * file:./config/application.properties
+	 * <p>
+	 * file:./application.yaml
+	 * file:./application.yml
+	 * file:./application.xml
+	 * file:./application.properties
+	 * <p>
+	 * classpath:/config/application.yaml
+	 * classpath:/config/application.yml
+	 * classpath:/config/application.xml
+	 * classpath:/config/application.properties
+	 * <p>
+	 * classpath:/application.yaml
+	 * classpath:/application.yml
+	 * classpath:/application.xml
+	 * classpath:/application.properties
+	 * <p>
+	 * file:./config/*\/application-default.yaml
+	 * file:./config/*\/application-default.yml
+	 * file:./config/*\/application-default.xml
+	 * file:./config/*\/application-default.properties
+	 * <p>
+	 * file:./config/application-default.yaml
+	 * file:./config/application-default.yml
+	 * file:./config/application-default.xml
+	 * file:./config/application-default.properties
+	 * <p>
+	 * file:./application-default.yaml
+	 * file:./application-default.yml
+	 * file:./application-default.xml
+	 * file:./application-default.properties
+	 * <p>
+	 * classpath:/config/application-default.yaml
+	 * classpath:/config/application-default.yml
+	 * classpath:/config/application-default.xml
+	 * classpath:/config/application-default.properties
+	 * <p>
+	 * classpath:/application-default.yaml
+	 * classpath:/application-default.yml
+	 * classpath:/application-default.xml
+	 * classpath:/application-default.properties
+	 */
 	private Deque<StandardConfigDataReference> getReferencesForConfigName(String name,
 			ConfigDataLocation configDataLocation, String directory, String profile) {
 		Deque<StandardConfigDataReference> references = new ArrayDeque<>();
+		// 遍历 PropertySourceLoader
 		for (PropertySourceLoader propertySourceLoader : this.propertySourceLoaders) {
+			// 获取支持的文件名后缀，拼接并添加到队列中
 			for (String extension : propertySourceLoader.getFileExtensions()) {
 				StandardConfigDataReference reference = new StandardConfigDataReference(configDataLocation, directory,
 						directory + name, profile, extension, propertySourceLoader);
@@ -198,6 +292,13 @@ public class StandardConfigDataLocationResolver
 		return references;
 	}
 
+	/**
+	 * 获取配置文件
+	 * @param configDataLocation
+	 * @param file
+	 * @param profile
+	 * @return
+	 */
 	private Set<StandardConfigDataReference> getReferencesForFile(ConfigDataLocation configDataLocation, String file,
 			String profile) {
 		Matcher extensionHintMatcher = EXTENSION_HINT_PATTERN.matcher(file);
