@@ -43,10 +43,12 @@ public class YamlPropertySourceLoader implements PropertySourceLoader {
 
 	@Override
 	public List<PropertySource<?>> load(String name, Resource resource) throws IOException {
+		// 由 org.yaml.snakeyaml.Yaml 实现解析加载
 		if (!ClassUtils.isPresent("org.yaml.snakeyaml.Yaml", null)) {
 			throw new IllegalStateException(
 					"Attempted to load " + name + " but snakeyaml was not found on the classpath");
 		}
+		// 加载
 		List<Map<String, Object>> loaded = new OriginTrackedYamlLoader(resource).load();
 		if (loaded.isEmpty()) {
 			return Collections.emptyList();
