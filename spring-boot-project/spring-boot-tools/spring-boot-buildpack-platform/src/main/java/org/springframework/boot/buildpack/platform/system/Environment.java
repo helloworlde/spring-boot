@@ -18,6 +18,7 @@ package org.springframework.boot.buildpack.platform.system;
 
 /**
  * Provides access to environment variable values.
+ * 提供环境变量的访问
  *
  * @author Scott Frederick
  * @author Phillip Webb
@@ -34,9 +35,13 @@ public interface Environment {
 
 	/**
 	 * Gets the value of the specified environment variable.
+	 * 获取指定的环境变量的值
+	 *
 	 * @param name the name of the environment variable
+	 *             环境变量的名称
 	 * @return the string value of the variable, or {@code null} if the variable is not
 	 * defined in the environment
+	 * 环境变量的值，如果没有则是 null
 	 */
 	String get(String name);
 
