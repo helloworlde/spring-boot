@@ -92,15 +92,20 @@ class SpringIterableConfigurationPropertySource extends SpringConfigurationPrope
 		return this.cache;
 	}
 
+	/**
+	 * 获取配置
+	 */
 	@Override
 	public ConfigurationProperty getConfigurationProperty(ConfigurationPropertyName name) {
 		if (name == null) {
 			return null;
 		}
+		// 从父类中获取配置
 		ConfigurationProperty configurationProperty = super.getConfigurationProperty(name);
 		if (configurationProperty != null) {
 			return configurationProperty;
 		}
+		// 如果没有找到则遍历所有的 mappers 查找
 		for (String candidate : getMappings().getMapped(name)) {
 			Object value = getPropertySource().getProperty(candidate);
 			if (value != null) {

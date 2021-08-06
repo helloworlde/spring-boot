@@ -71,13 +71,16 @@ class ConfigurationPropertySourcesPropertyResolver extends AbstractPropertyResol
 	}
 
 	private <T> T getProperty(String key, Class<T> targetValueType, boolean resolveNestedPlaceholders) {
+		// 查找配置
 		Object value = findPropertyValue(key, targetValueType);
 		if (value == null) {
 			return null;
 		}
+		// 处理占位符
 		if (resolveNestedPlaceholders && value instanceof String) {
 			value = resolveNestedPlaceholders((String) value);
 		}
+		// 转换为需要的属性
 		return convertValueIfNecessary(value, targetValueType);
 	}
 

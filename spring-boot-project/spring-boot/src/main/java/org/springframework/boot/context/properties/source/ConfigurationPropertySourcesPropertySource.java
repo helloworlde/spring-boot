@@ -62,16 +62,23 @@ class ConfigurationPropertySourcesPropertySource extends PropertySource<Iterable
 		}
 	}
 
+	/**
+	 * 查找属性值
+	 */
 	ConfigurationProperty findConfigurationProperty(ConfigurationPropertyName name) {
 		if (name == null) {
 			return null;
 		}
+		// 遍历所有的 ConfigurationPropertySource
 		for (ConfigurationPropertySource configurationPropertySource : getSource()) {
+			// 获取配置
 			ConfigurationProperty configurationProperty = configurationPropertySource.getConfigurationProperty(name);
+			// 如果找到则返回
 			if (configurationProperty != null) {
 				return configurationProperty;
 			}
 		}
+		// 没有找到
 		return null;
 	}
 
