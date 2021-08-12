@@ -31,6 +31,8 @@ import org.springframework.context.annotation.Import;
  * (for example using {@link Bean @Bean} methods) or, for convenience, can be specified
  * directly on this annotation.
  *
+ * 支持 @ConfigurationProperties 标记的 bean，支持通过标准方式注册 Bean
+ *
  * @author Dave Syer
  * @since 1.0.0
  */
@@ -42,6 +44,7 @@ public @interface EnableConfigurationProperties {
 
 	/**
 	 * The bean name of the configuration properties validator.
+	 * 配置属性验证的 bean 名称
 	 * @since 2.2.0
 	 */
 	String VALIDATOR_BEAN_NAME = "configurationPropertiesValidator";
