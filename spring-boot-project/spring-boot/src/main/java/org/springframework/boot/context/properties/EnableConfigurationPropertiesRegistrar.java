@@ -16,10 +16,6 @@
 
 package org.springframework.boot.context.properties;
 
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -28,6 +24,10 @@ import org.springframework.context.annotation.ImportBeanDefinitionRegistrar;
 import org.springframework.core.Conventions;
 import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.core.type.AnnotationMetadata;
+
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * {@link ImportBeanDefinitionRegistrar} for
@@ -65,8 +65,8 @@ class EnableConfigurationPropertiesRegistrar implements ImportBeanDefinitionRegi
 		return metadata.getAnnotations()
 		               // 过滤只保留指定的注解
 		               .stream(EnableConfigurationProperties.class)
-				.flatMap((annotation) -> Arrays.stream(annotation.getClassArray(MergedAnnotation.VALUE)))
-				.filter((type) -> void.class != type).collect(Collectors.toSet());
+		               .flatMap((annotation) -> Arrays.stream(annotation.getClassArray(MergedAnnotation.VALUE)))
+		               .filter((type) -> void.class != type).collect(Collectors.toSet());
 	}
 
 	/**

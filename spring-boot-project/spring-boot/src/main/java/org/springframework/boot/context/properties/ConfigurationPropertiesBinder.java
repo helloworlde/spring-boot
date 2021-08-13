@@ -89,10 +89,16 @@ class ConfigurationPropertiesBinder {
 		this.jsr303Present = ConfigurationPropertiesJsr303Validator.isJsr303Present(applicationContext);
 	}
 
+	/**
+	 * 绑定配置属性
+	 */
 	BindResult<?> bind(ConfigurationPropertiesBean propertiesBean) {
+		// 作为绑定目标
 		Bindable<?> target = propertiesBean.asBindTarget();
 		ConfigurationProperties annotation = propertiesBean.getAnnotation();
+		// 绑定处理器
 		BindHandler bindHandler = getBindHandler(target, annotation);
+		// 绑定
 		return getBinder().bind(annotation.prefix(), target, bindHandler);
 	}
 

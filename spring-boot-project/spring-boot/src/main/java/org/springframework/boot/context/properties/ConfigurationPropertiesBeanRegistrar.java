@@ -81,10 +81,14 @@ final class ConfigurationPropertiesBeanRegistrar {
 		return false;
 	}
 
+	/**
+	 * 注册 @Configuration 注解指定的 Bean
+	 */
 	private void registerBeanDefinition(String beanName, Class<?> type,
 			MergedAnnotation<ConfigurationProperties> annotation) {
 		Assert.state(annotation.isPresent(), () -> "No " + ConfigurationProperties.class.getSimpleName()
 				+ " annotation found on  '" + type.getName() + "'.");
+		// 通过 BeanDefinitionRegistry 进行注册
 		this.registry.registerBeanDefinition(beanName, createBeanDefinition(beanName, type));
 	}
 

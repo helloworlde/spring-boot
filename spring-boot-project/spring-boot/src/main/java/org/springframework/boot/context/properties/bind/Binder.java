@@ -240,6 +240,8 @@ public class Binder {
 	/**
 	 * Bind the specified target {@link Bindable} using this binder's
 	 * {@link ConfigurationPropertySource property sources}.
+	 * 使用 binder 绑定 ConfigurationPropertySource 属性到 Bindable 对象
+	 *
 	 * @param name the configuration property name to bind
 	 * @param target the target bindable
 	 * @param handler the bind handler (may be {@code null})

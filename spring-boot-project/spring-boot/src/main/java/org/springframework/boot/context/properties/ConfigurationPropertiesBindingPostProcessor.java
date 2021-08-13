@@ -73,8 +73,12 @@ public class ConfigurationPropertiesBindingPostProcessor
 		return Ordered.HIGHEST_PRECEDENCE + 1;
 	}
 
+	/**
+	 * 执行配置属性的绑定
+	 */
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+		// 创建 ConfigurationPropertiesBean 并绑定属性
 		bind(ConfigurationPropertiesBean.get(this.applicationContext, bean, beanName));
 		return bean;
 	}
